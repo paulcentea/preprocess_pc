@@ -20,16 +20,16 @@ path = os.path.dirname(os.path.abspath(__file__))
 abbreviations_path = os.path.join(path, 'data','abbreviations.json')
 
 
-def _get_wordcounts(x):
+def _get_word_counts(x):
 	length = len(str(x).split())
 	return length
 
-def _get_charcounts(x):
+def _get_char_counts(x):
 	s = x.split()
 	x = ''.join(s)
 	return len(x)
 
-def _get_avg_wordlength(x):
+def _get_avg_word_length(x):
 	count = _get_charcounts(x)/_get_wordcounts(x)
 	return count
 
@@ -127,7 +127,7 @@ def _remove_common_words(x, freq, n=20):
 	x = ' '.join([t for t in x.split() if t not in fn])
 	return x
 
-def _remove_rarewords(x, freq, n=20):
+def _remove_rare_words(x, freq, n=20):
 	fn = freq.tail(n)
 	x = ' '.join([t for t in x.split() if t not in fn])
 	return x
