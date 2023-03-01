@@ -2,14 +2,14 @@ from preprocess_pc import utils
 
 __version__ = '0.0.3'
 
-def get_wordcounts(x):
-	return utils._get_wordcounts(x)
+def get_word_counts(x):
+	return utils._get_word_counts(x)
 
-def get_charcounts(x):
-	return utils._get_charcounts(x)
+def get_char_counts(x):
+	return utils._get_char_counts(x)
 
-def get_avg_wordlength(x):
-	return utils._get_avg_wordlength(x)
+def get_avg_word_length(x):
+	return utils._get_avg_word_length(x)
 
 def get_stopwords_counts(x):
 	return utils._get_stopwords_counts(x)
@@ -68,8 +68,8 @@ def get_word_freqs(df, col):
 def remove_common_words(x, freq, n=20):
 	return utils._remove_common_words(x, freq, n)
 
-def remove_rarewords(x, freq, n=20):
-	return utils._remove_rarewords(x, freq, n)
+def remove_rare_words(x, freq, n=20):
+	return utils._remove_rare_words(x, freq, n)
 
 def spelling_correction(x):
 	return utils._spelling_correction(x)
