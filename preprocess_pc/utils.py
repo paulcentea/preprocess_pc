@@ -30,7 +30,7 @@ def _get_char_counts(x):
 	return len(x)
 
 def _get_avg_word_length(x):
-	count = _get_charcounts(x)/_get_wordcounts(x)
+	count = _get_char_counts(x)/_get_word_counts(x)
 	return count
 
 def _get_stopwords_counts(x):
@@ -52,7 +52,28 @@ def _get_digit_counts(x):
 def _get_uppercase_counts(x):
 	return len([t for t in x.split() if t.isupper()])
 
-def _cont_exp(x):
+def _get_urls(x):
+	urls = re.findall(r'(http|https|ftp|ssh)://([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?', x)
+	counts = len(urls)
+
+	return counts, urls
+
+def _remove_urls(x):
+	return re.sub(r'(http|https|ftp|ssh)://([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?', '' , x)
+	
+def _get_emails(x):
+	emails = re.findall(r'([a-z0-9+._-]+@[a-z0-9+._-]+\.[a-z0-9+_-]+\b)', x)
+	counts = len(emails)
+
+	return counts, emails
+
+def _remove_emails(x):
+	return re.sub(r'([a-z0-9+._-]+@[a-z0-9+._-]+\.[a-z0-9+_-]+)',"", x)
+
+def _remove_rt(x):
+	return re.sub(r'\brt\b', '', x).strip()
+
+def _get_contractions_to_expansions(x):
 	abbreviations = json.load(open(abbreviations_path))
 
 	if type(x) is str:
@@ -65,30 +86,7 @@ def _cont_exp(x):
 	else:
 		return x
 
-
-def _get_emails(x):
-	emails = re.findall(r'([a-z0-9+._-]+@[a-z0-9+._-]+\.[a-z0-9+_-]+\b)', x)
-	counts = len(emails)
-
-	return counts, emails
-
-
-def _remove_emails(x):
-	return re.sub(r'([a-z0-9+._-]+@[a-z0-9+._-]+\.[a-z0-9+_-]+)',"", x)
-
-def _get_urls(x):
-	urls = re.findall(r'(http|https|ftp|ssh)://([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?', x)
-	counts = len(urls)
-
-	return counts, urls
-
-def _remove_urls(x):
-	return re.sub(r'(http|https|ftp|ssh)://([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?', '' , x)
-
-def _remove_rt(x):
-	return re.sub(r'\brt\b', '', x).strip()
-
-def _remove_special_chars(x):
+def _remove_special_chars_and_multiple_spaces(x):
 	x = re.sub(r'[^\w ]+', "", x)
 	x = ' '.join(x.split())
 	return x
@@ -140,11 +138,19 @@ def _spelling_correction(x):
 	x = TextBlob(x).correct()
 	return x
 
+def _get_ngram(df, col, ngram_range):
+	vectorizer = CountVectorizer(ngram_range=(ngram_range, ngram_range))
+	vectorizer.fit_transform(df[col])
+	ngram = vectorizer.vocabulary_
+	ngram = sorted(ngram.items(), key = lambda x: x[1], reverse=True)
+
+	return ngram
+
 def _get_basic_features(df):
 	if type(df) == pd.core.frame.DataFrame:
-		df['char_counts'] = df['text'].apply(lambda x: _get_charcounts(x))
-		df['word_counts'] = df['text'].apply(lambda x: _get_wordcounts(x))
-		df['avg_wordlength'] = df['text'].apply(lambda x: _get_avg_wordlength(x))
+		df['char_counts'] = df['text'].apply(lambda x: _get_char_counts(x))
+		df['word_counts'] = df['text'].apply(lambda x: _get_word_counts(x))
+		df['avg_wordlength'] = df['text'].apply(lambda x: _get_avg_word_length(x))
 		df['stopwords_counts'] = df['text'].apply(lambda x: _get_stopwords_counts(x))
 		df['hashtag_counts'] = df['text'].apply(lambda x: _get_hashtag_counts(x))
 		df['mentions_counts'] = df['text'].apply(lambda x: _get_mentions_counts(x))
@@ -154,14 +160,5 @@ def _get_basic_features(df):
 		print('ERROR: This function takes only Pandas DataFrame')
 		
 	return df
-
-
-def _get_ngram(df, col, ngram_range):
-	vectorizer = CountVectorizer(ngram_range=(ngram_range, ngram_range))
-	vectorizer.fit_transform(df[col])
-	ngram = vectorizer.vocabulary_
-	ngram = sorted(ngram.items(), key = lambda x: x[1], reverse=True)
-
-	return ngram
 
 
