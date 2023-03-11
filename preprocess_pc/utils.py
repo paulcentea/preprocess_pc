@@ -74,7 +74,7 @@ def _remove_rt(x):
 	return re.sub(r'\brt\b', '', x).strip()
 
 def _get_contractions_to_expansions(x):
-	abbreviations = json.load(open(abbreviations_path))
+	abbreviations = json.load(open(abbreviations_path, encoding = 'utf-8'))
 
 	if type(x) is str:
 		for key in abbreviations:
